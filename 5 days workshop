@@ -1,0 +1,166 @@
+show databases;
+
+create database querysolving;
+
+use querysolving;
+
+create table Employee(Emp_No int(4) primary key,Ename varchar(30) not null,job varchar(20),Mgr int(4),Hiredate date,
+Salary int(10),Commission int(10) null,Dep_No int(2));
+
+select * from Employee;
+
+create table Department(Dep_No int(2),Dname varchar(30),Dlocation varchar(30));
+
+select * from Department;
+
+insert into Employee values(7876,'adams','clerk',7788,'1987-05-23',1100,null,20);
+insert into Employee values(7900,'james','clerk',7698,'1981-12-03',950,null,30);
+insert into Employee values(7654,'martin','salesman',7698,'1981-09-28',1250,1400,30);
+insert into Employee values(7698,'blake','manager',7839,'1981-05-01',2850,null,30);
+insert into Employee values(7782,'clark','manager',7839,'1981-06-09',2450,null,10);
+insert into Employee values(7788,'scott','analyst',7566,'1987-04-19',3000,null,20);
+insert into Employee values(7902,'ford','analyst',7566,'1981-12-03',3000,null,20);
+insert into Employee values(7934,',miller','clerk',7782,'1982-01-23',1300,null,10);
+
+insert into Department values(10,'accounting','new york');
+insert into Department values(20,'research','dallas');
+insert into Department values(30,'sales','chicago');
+insert into Department values(40,'operations','boston');
+
+select Ename,Dep_No,job from Employee where job='manager' and Dep_No=10;
+
+select Ename,Salary,Dep_No from Employee where Salary between 1250 and 4000 and Dep_No=10;
+
+select Salary from Employee;
+
+select *,(Salary*12) Annual_Salary 
+from Employee
+where Dep_No=30 and job='salesman' and Salary*12>10000;
+
+alter table Department add constraint primary key(Dep_No);
+
+alter table Employee add constraint foreign key(Dep_No) references Department(Dep_No);
+
+desc Department;
+
+update Employee set job='salesman' where Emp_No=7499;
+
+select Ename,job,Dep_No from Employee where job='clerk' or job='salesman' and Dep_No=10 or Dep_No=30 and Salary>1800;
+
+select Ename,Dep_No from Employee where Dep_No Not in(10,40);
+
+select Ename,Salary,Salary*12 Annual_Salary,Dep_No;
+
+select Ename from Employee where Ename like 's%';
+select Ename from Employee where Ename like '%a';
+select Ename from Employee where Ename like '_m%';
+select Ename from Employee where hiredate like '%-04-%';
+select Ename from Employee where Ename like '%a%a%';
+
+select count(Ename) Ename from Employee where Ename like '%e%';
+
+select avg(Salary) Average,sum(Salary) Total,count(Ename) No_Emp,max(Salary) Max_Salary 
+from Employee where job='president';
+
+select Ename,Dep_No,max(Salary) total
+from Employee
+group by Dep_No,Ename;
+
+select job,count(Ename)
+from Employee
+where Ename like '%a%' 
+group by job
+order by job desc;
+
+select Dep_No,count(*)
+from Employee
+group by Dep_No
+having count(*)>=3;
+
+select Ename from Employee where Salary=(select Salary from Employee where Ename='miller');
+
+select Ename,Dep_No from Employee
+where Dep_No=(Select Dep_No from Employee where Ename='smith');
+
+select Ename,Hiredate from Employee where Hiredate>(Select Hiredate From Employee where Ename='jones');
+
+select Ename,Salary,Dep_No from Employee where Salary>2000 and Dep_No=(Select Dep_No from Employee where Ename='james');
+
+select * from Employee where Salary>(Select Salary from Employee where Ename='smith') and 
+Salary<(Select Salary From Employee where Ename='king');
+
+select Ename from Employee where Dep_No=(select Dep_No from Employee where Ename='james') and
+Salary>(select Salary from Employee where Ename='smith') and job=(select job from Employee Where Ename='miller') and
+HireDate>(select Hiredate from Employee where Ename='martin');
+
+select Dname from Department where dep_No=(select dep_No From Employee where Ename='miller');
+
+select count(*) from Employee where dep_no=(select dep_no from Department where Dname='accounting');
+
+select * from Employee Where job=(select job from Employee where Ename='miller') and 
+Dep_No=(select dep_no from Department where Dlocation='new york');
+
+select Ename from employee where salary>(select max(Salary) from employee where job='salesman');
+
+select * from Employee where hiredate>(select max(hiredate) from employee where job='clerk');
+
+select ename from employee where Salary<(select min(salary) from employee where job='manager');
+
+select ename,hiredate from employee where hiredate<(select min(hiredate) from employee where job='manager');
+
+select ename from employee where hiredate>(select max(hiredate) from employee where job='manager') and 
+salary>(select max(salary) from employee where job='clerk'); 
+
+select * from employee where job='clerk' and 
+hiredate<(select min(hiredate) from employee where job='salesman');
+
+select * from Employee where dep_No=(select dep_no from department where dname='accounting') or
+dep_no=(select dep_no from Department where dname='sales');
+
+select dname,ename from employee e,department d where e.dep_no=d.dep_no and Dlocation in('new york','chicago');
+
+select max(salary) from employee where salary<(select max(salary) from employee);
+
+select min(salary) from employee where salary>(select min(salary) from employee);
+
+select * from employee cross join department;
+
+select ename,dname from employee e inner join department d where e.dep_no=d.dep_no; 
+
+select ename,dname from employee e inner join department d where e.dep_no=d.dep_no and e.job='manager';
+
+select ename,salary,dname from employee e inner join department d where e.dep_no=d.dep_no;
+
+select ename,salary from employee e inner join department d where d.dep_no=e.dep_no and d.dname='accounting';
+
+select * from employee e right join department d on d.dep_no=e.dep_no;
+
+select * from employee e right join department d on e.dep_no=d.dep_no union select * from 
+employee e left join department d on d.dep_no=e.dep_no;
+
+select * from employee e1 join employee e2 on e1.emp_no=e2.mgr;
+
+select e1.ename,e1.salary,e2.ename,e2.salary from employee e1 join employee e2 on e1.mgr=e2.emp_no; 
+
+select e1.ename,e2.ename,e2.dep_no from employee e1 join employee e2 on e1.mgr=e2.emp_no and e1.job='clerk';
+   
+select e1.ename,e2.job from employee e1 join employee e2 on e1.mgr=e2.emp_no and e2.job='analyst';
+
+select e1.ename,e2.mgr,e2.ename from employee e1 join employee e2 on e1.emp_no=e2.mgr and e1.job=e2.job;
+
+select e1.ename,e1.salary,e2.ename,e2.salary from employee e1 join employee e2 on e2.emp_no=e1.mgr 
+where e2.salary>e1.salary;
+
+select * from employee natural join department ;
+
+select e1.ename,e2.job from employee e1 natural join employee e2 where e2.dep_no in(10,20);
+
+select e.ename,e.salary,d.dname from employee e natural join department d 
+where e.dep_no=(select e.dep_no from employee e 
+where e.job='president') order by e.salary desc;
+
+select e.ename,e.avg(salary) from employee e natural join department d e.hiredate=(select e.hiredate from employee where
+
+create view simples as select * from employee natural join department;
+
+select * from simples;
